@@ -1,16 +1,15 @@
 use std::fs;
 use std::io;
 use std::fs::File;
-use reqwest::blocking;
+use reqwest;
 use std::path::PathBuf;
 use std::error::Error;
-use std::env;
 use std::process::Command;
 
 fn main() {
     // variables
     let username = std::env::var("USERNAME").unwrap();
-    let mut core_choice = String::new();
+    let core_choice = String::new();
     let mut folder_name_choice = String::new();
     let mut url = String::new();
 
@@ -29,15 +28,20 @@ fn main() {
     
         // matches the user choice
         match core_choice {
+
+            // paper
             0 => {
                 url = "https://api.papermc.io/v2/projects/paper/versions/1.19.4/builds/519/downloads/paper-1.19.4-519.jar".to_string();
                 break;
             }
+
+            // vanilla
             1 => {
                 url = "https://piston-data.mojang.com/v1/objects/8f3112a1049751cc472ec13e397eade5336ca7ae/server.jar".to_string();
                 break;
             }
 
+            // forge
             2 => {
                 url = "https://maven.minecraftforge.net/net/minecraftforge/forge/1.19.4-45.0.49/forge-1.19.4-45.0.49-installer.jar".to_string();
                 break;
@@ -61,14 +65,20 @@ fn main() {
 
     // makes a directory with user's Windows username, and a folder name that they've chosen
     let path = format!("C:\\Users\\{}\\Desktop\\{}", username, folder_name_choice);    
-    
+
     // checks if an error has occured making a folder
     match fs::create_dir(&path){
         Ok(_) => println!("Folder created!"),
         Err(e) => println!("An error occured when creating the folder! {}", e)
     };
 
-    download_required_files(&url, &path);
+    match download_required_files(&url, &path){
+        Ok(success) => success,
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    }
 }
 
 fn download_required_files(url: &String, download_folder: &String) -> Result<(), Box<dyn Error>> {
@@ -102,15 +112,14 @@ fn download_required_files(url: &String, download_folder: &String) -> Result<(),
         .output()
         .expect("Failed to extract the contents of .jar file!");
 
-        if url == "https://maven.minecraftforge.net/net/minecraftforge/forge/1.19.4-45.0.49/forge-1.19.4-45.0.49-installer.jar"{
-            let output = Command::new("java")
-                .arg("-jar")
-                .arg("forge-1.19.4-installer.jar")
-                .arg("-installServer")
-                .output()
-                .expect("Failed to setup the server!");
-        }
-    
+    if url == "https://maven.minecraftforge.net/net/minecraftforge/forge/1.19.4-45.0.49/forge-1.19.4-45.0.49-installer.jar"{
+        let output = Command::new("java")
+            .arg("-jar")
+            .arg("forge-1.19.4-installer.jar")
+            .arg("-installServer")
+            .output()
+            .expect("Failed to setup the server!");
+    }
     // creating a command that finishes the server setup
     println!("Finishing the server setup");
     let output = Command::new("java")
@@ -119,7 +128,6 @@ fn download_required_files(url: &String, download_folder: &String) -> Result<(),
         .arg(format!("{}", &file_name))
         .output()
         .expect("Failed to setup the server files!");
-
+    
     Ok(())
-
 }
