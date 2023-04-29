@@ -15,7 +15,7 @@ fn main() {
 
     // loop in case the user enters something that is not an integer or not listed in available core choices
     loop {
-        println!("What server software do you wish to use?\n Current options: 0) Paper, 1) Vanilla, 2) Forge");
+        println!("What server software do you wish to use?\nCurrent options: 0) Paper, 1) Vanilla, 2) Forge");
     
         let mut core_choice = String::new();
     
@@ -59,7 +59,7 @@ fn main() {
 
     io::stdin()
         .read_line(&mut folder_name_choice)
-        .expect("Failed to get the name for the folder!");
+        .expect("Failed to get the name for he folder!");
 
     let folder_name_choice = folder_name_choice.trim().to_lowercase();
 
@@ -82,6 +82,7 @@ fn main() {
 }
 
 fn download_required_files(url: &String, download_folder: &String) -> Result<(), Box<dyn Error>> {
+    let mut agreed_to_eula = String::new();
     // Create a GET request to download the file
     let mut response = reqwest::blocking::get(url)?;
 
@@ -121,13 +122,62 @@ fn download_required_files(url: &String, download_folder: &String) -> Result<(),
             .expect("Failed to setup the server!");
     }
     // creating a command that finishes the server setup
-    println!("Finishing the server setup");
+    println!("Finishing the server download");
     let output = Command::new("java")
         .current_dir(&download_folder)
         .arg(format!("-jar"))
         .arg(format!("{}", &file_name))
         .output()
         .expect("Failed to setup the server files!");
+
+    loop{
+    println!("Do you agree to Minecraft's EULA (https://aka.ms/MinecraftEULA)?\ny for yes, n for no");
+
+    // reads the user response
+    io::stdin()
+        .read_line(&mut agreed_to_eula)
+        .expect("Failed to convert the response!");
     
+    // trims the user choice so it doesnt have whitespaces and stuff like that
+    let trimmed_agreed_to_eula = agreed_to_eula.trim();
+
+    // matches the user's choice
+    match trimmed_agreed_to_eula{
+        "y" => {
+            eula_agree(download_folder.to_string(), file_name.to_string());
+            break;
+        }
+        "n" => {
+            println!("You didn't agree to eula! How do you expect to make a server then?");
+            agreed_to_eula = String::new();
+            continue
+        }
+        _ => {
+            println!("Invalid input! Try again!");
+            continue
+        }
+    }
+    }
+    Ok(())
+}
+fn eula_agree(path: String, file_name: String) -> io::Result<()> {
+    // Read the file content as a string
+    let eula_file = format!("{}/eula.txt", path); // The file path
+    let content = fs::read_to_string(&eula_file)?; // Use ? to get the String value
+
+    // Replace only the first occurrence of "false" with "true"
+    let agreed_eula = content.replace("false", "true");
+
+    // Write the new content back to the file
+    fs::write(&eula_file, agreed_eula)?; // Use ? to propagate any error
+
+    // final setup and launch the server
+    let output = Command::new("java")
+        .current_dir(&path)
+        .arg(format!("-jar"))
+        .arg(format!("{}", &file_name))
+        .output()
+        .expect("Failed to setup the server files!");
+
     Ok(())
 }
