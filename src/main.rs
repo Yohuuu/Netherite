@@ -55,29 +55,31 @@ fn main() {
         }
     }
 
+    loop{
     println!("Enter a name for your server folder: ");
 
     io::stdin()
         .read_line(&mut folder_name_choice)
-        .expect("Failed to get the name for he folder!");
+        .expect("Failed to get the name for the folder!");
 
-    let folder_name_choice = folder_name_choice.trim().to_lowercase();
+    let mut trimmed_folder_name_choice = folder_name_choice.trim();
 
     // makes a directory with user's Windows username, and a folder name that they've chosen
-    let path = format!("C:\\Users\\{}\\Desktop\\{}", username, folder_name_choice);    
+    let path = format!("C:\\Users\\{}\\Desktop\\{}", username, trimmed_folder_name_choice);    
 
     // checks if an error has occured making a folder
     match fs::create_dir(&path){
-        Ok(_) => println!("Folder created!"),
-        Err(e) => println!("An error occured when creating the folder! {}", e)
-    };
-
-    match download_required_files(&url, &path){
-        Ok(success) => success,
-        Err(e) => {
-            println!("{}", e);
-            return;
+        Ok(_) => {
+            println!("Folder created!");
+            download_required_files(&url, &path);
+            break
         }
+        Err(e) => {
+            println!("An error occured when creating the folder! {}", e);
+            folder_name_choice = String::new();
+            continue;
+        }
+    };
     }
 }
 
