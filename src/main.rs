@@ -139,7 +139,7 @@ fn download_required_files(url: &String, download_folder: &String) -> Result<(),
         .expect("Failed to convert the response!");
     
     // trims the user choice so it doesnt have whitespaces and stuff like that
-    let trimmed_agreed_to_eula = agreed_to_eula.trim();
+    let mut trimmed_agreed_to_eula = agreed_to_eula.trim();
 
     // matches the user's choice
     match trimmed_agreed_to_eula{
@@ -154,6 +154,7 @@ fn download_required_files(url: &String, download_folder: &String) -> Result<(),
         }
         _ => {
             println!("Invalid input! Try again!");
+            agreed_to_eula = String::new();
             continue
         }
     }
@@ -171,13 +172,35 @@ fn eula_agree(path: String, file_name: String) -> io::Result<()> {
     // Write the new content back to the file
     fs::write(&eula_file, agreed_eula)?; // Use ? to propagate any error
 
-    // final setup and launch the server
-    let output = Command::new("java")
-        .current_dir(&path)
-        .arg(format!("-jar"))
-        .arg(format!("{}", &file_name))
-        .output()
-        .expect("Failed to setup the server files!");
+    loop{
+        let mut launch_server = String::new();
+        println!("Do you want to launch the server? y for yes, n for no:");
+        io::stdin()
+            .read_line(&mut launch_server)
+            .expect("Failed to read the user input!");
 
-    Ok(())
+        let trimmed_launch_server = launch_server.trim();
+
+        match trimmed_launch_server{
+            "y" => {
+            println!("Launching the server");
+            let output = Command::new("java")
+                .current_dir(&path)
+                .arg(format!("-jar"))
+                .arg(format!("{}", &file_name))
+                .output()
+                .expect("Failed to setup the server files!");
+                break Ok(());
+            }
+            "n" => {
+                break Ok(())
+            }
+            _ => {
+                println!("Invalid input! Try again!");
+                launch_server = String::new();
+                continue;
+            }
+        }
+
+    }
 }
