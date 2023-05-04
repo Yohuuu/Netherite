@@ -63,21 +63,20 @@ fn main() {
         .expect("Failed to get the name for the folder!");
 
     let mut trimmed_folder_name_choice = folder_name_choice.trim();
-
     // makes a directory with user's Windows username, and a folder name that they've chosen
-    let path = format!("C:\\Users\\{}\\Desktop\\{}", username, trimmed_folder_name_choice);    
+    let mut path = format!("C:\\Users\\{}\\Desktop\\{}", username, trimmed_folder_name_choice);   
 
-    // checks if an error has occured making a folder
     match fs::create_dir(&path){
-        Ok(_) => {
+        Ok(success) => {
             println!("Folder created!");
             download_required_files(&url, &path);
-            break
+            break success
         }
         Err(e) => {
             println!("An error occured when creating the folder! {}", e);
             folder_name_choice = String::new();
-            continue;
+            path = String::new();
+            continue
         }
     };
     }
