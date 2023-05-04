@@ -67,10 +67,10 @@ fn main() {
     let mut path = format!("C:\\Users\\{}\\Desktop\\{}", username, trimmed_folder_name_choice);   
 
     match fs::create_dir(&path){
-        Ok(success) => {
+        Ok(_) => {
             println!("Folder created!");
             download_required_files(&url, &path);
-            break success
+            break;
         }
         Err(e) => {
             println!("An error occured when creating the folder! {}", e);
