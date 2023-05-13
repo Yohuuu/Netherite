@@ -1,6 +1,48 @@
 use std::{fs, io, process::Command};
 
 pub fn eula_agree(path: String, file_name: String) -> io::Result<()> {
+    let mut agreed_to_eula = String::new();
+
+    // doing that one more time because the server wont be fully set-up without doing this command 2 times
+    let output = Command::new("java")
+        .current_dir(&path)
+        .arg(format!("-jar"))
+        .arg(format!("{}", &file_name))
+        .output()
+        .expect("Failed to setup the server files!");
+
+    loop{
+        println!("Do you agree to Minecraft's EULA (https://aka.ms/MinecraftEULA)?\ny for yes, n for no");
+    
+        // reads the user response
+        io::stdin()
+            .read_line(&mut agreed_to_eula)
+            .expect("Failed to convert the response!");
+        
+    
+        // trims the user choice so it doesnt have whitespaces and stuff like that
+        let mut trimmed_agreed_to_eula = agreed_to_eula.trim();
+     
+    
+        // matches the user's choice
+        match trimmed_agreed_to_eula{
+            "y" => {
+                
+                break;
+            }
+            "n" => {
+                println!("You didn't agree to eula! How do you expect to make a server then?");
+                agreed_to_eula = String::new();
+                continue
+            }
+            _ => {
+                println!("Invalid input! Try again!");
+                agreed_to_eula = String::new();
+                continue
+            }
+        }
+        }
+
     // Read the file content as a string
     let eula_file = format!("{}/eula.txt", path); // The file path
     let content = fs::read_to_string(&eula_file)?; // Use ? to get the String value
@@ -24,15 +66,20 @@ pub fn eula_agree(path: String, file_name: String) -> io::Result<()> {
         match trimmed_launch_server{
             "y" => {
             println!("Launching the server");
-            let output = Command::new("java")
-                .current_dir(&path)
-                .arg(format!("-jar"))
-                .arg(format!("{}", &file_name))
-                .output()
-                .expect("Failed to setup the server files!");
+            
+
+
+
+
+
+
+            // TODO: FIX THAT FUCKING DISGUSTING BUG WHEN USER TYPES IN N IN LAUNCH THE SERVER, IT DOESNT COMPLETELY FINISH THE SERVER SETUP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
                 break Ok(());
             }
             "n" => {
+                
                 break Ok(())
             }
             _ => {

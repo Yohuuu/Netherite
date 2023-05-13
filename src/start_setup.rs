@@ -1,4 +1,4 @@
-use std::{io, fs};
+use std::{io::{self, Write}, fs::{self, File}, process::Command};
 use crate::download_required_files::download_required_files;
 
 pub fn start_setup(username: String){
@@ -45,7 +45,7 @@ pub fn start_setup(username: String){
                     continue;
                 }
             }
-        }
+            }
     
         loop{
         println!("Enter a name for your server folder: ");
@@ -56,7 +56,7 @@ pub fn start_setup(username: String){
     
         let mut trimmed_folder_name_choice = folder_name_choice.trim();
         // makes a directory with user's Windows username, and a folder name that they've chosen
-        let mut path = format!("C:\\Users\\{}\\Desktop\\{}", username, trimmed_folder_name_choice);   
+        let mut path = format!("C:\\Users\\{}\\Desktop\\{}", username, trimmed_folder_name_choice);
     
         match fs::create_dir(&path){
             Ok(_) => {

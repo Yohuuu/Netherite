@@ -43,41 +43,7 @@ pub fn download_required_files(url: &String, download_folder: &String) -> Result
     }
     // creating a command that finishes the server setup
     println!("Finishing the server download");
-    let output = Command::new("java")
-        .current_dir(&download_folder)
-        .arg(format!("-jar"))
-        .arg(format!("{}", &file_name))
-        .output()
-        .expect("Failed to setup the server files!");
+    eula_agree(download_folder.to_string(), file_name.to_string());
 
-    loop{
-    println!("Do you agree to Minecraft's EULA (https://aka.ms/MinecraftEULA)?\ny for yes, n for no");
-
-    // reads the user response
-    io::stdin()
-        .read_line(&mut agreed_to_eula)
-        .expect("Failed to convert the response!");
-    
-    // trims the user choice so it doesnt have whitespaces and stuff like that
-    let mut trimmed_agreed_to_eula = agreed_to_eula.trim();
-
-    // matches the user's choice
-    match trimmed_agreed_to_eula{
-        "y" => {
-            eula_agree(download_folder.to_string(), file_name.to_string());
-            break;
-        }
-        "n" => {
-            println!("You didn't agree to eula! How do you expect to make a server then?");
-            agreed_to_eula = String::new();
-            continue
-        }
-        _ => {
-            println!("Invalid input! Try again!");
-            agreed_to_eula = String::new();
-            continue
-        }
-    }
-    }
     Ok(())
 }
