@@ -65,18 +65,8 @@ pub fn eula_agree(path: String, file_name: String) -> io::Result<()> {
 
         match trimmed_launch_server{
             "y" => {
-            println!("Launching the server");
-            
-
-
-
-
-
-
-            // TODO: FIX THAT FUCKING DISGUSTING BUG WHEN USER TYPES IN N IN LAUNCH THE SERVER, IT DOESNT COMPLETELY FINISH THE SERVER SETUP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-                break Ok(());
+            println!("Launching the server");          
+            break Ok(());
             }
             "n" => {
                 
