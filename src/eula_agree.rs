@@ -4,7 +4,7 @@ pub fn eula_agree(path: String, file_name: String) -> io::Result<()> {
     let mut agreed_to_eula = String::new();
 
     // doing that one more time because the server wont be fully set-up without doing this command 2 times
-    let output = Command::new("java")
+    Command::new("java")
         .current_dir(&path)
         .arg(format!("-jar"))
         .arg(format!("{}", &file_name))
@@ -21,9 +21,8 @@ pub fn eula_agree(path: String, file_name: String) -> io::Result<()> {
         
     
         // trims the user choice so it doesnt have whitespaces and stuff like that
-        let mut trimmed_agreed_to_eula = agreed_to_eula.trim();
+        let trimmed_agreed_to_eula = agreed_to_eula.trim();
      
-    
         // matches the user's choice
         match trimmed_agreed_to_eula{
             "y" => {
@@ -65,7 +64,13 @@ pub fn eula_agree(path: String, file_name: String) -> io::Result<()> {
 
         match trimmed_launch_server{
             "y" => {
-            println!("Launching the server");          
+            println!("Launching the server");
+            Command::new("java")
+                .current_dir(&path)
+                .arg(format!("-jar"))
+                .arg(format!("{}", &file_name))
+                .output()
+                .expect("Failed to launch the server");          
             break Ok(());
             }
             "n" => {

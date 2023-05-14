@@ -2,7 +2,6 @@ use std::{io, process::Command, path::PathBuf, fs::File, error::Error};
 use crate::eula_agree;
 
 pub fn download_required_files(url: &String, download_folder: &String) -> Result<(), Box<dyn Error>> {
-    let mut agreed_to_eula = String::new();
     // Create a GET request to download the file
     let mut response = reqwest::blocking::get(url)?;
 
@@ -26,7 +25,7 @@ pub fn download_required_files(url: &String, download_folder: &String) -> Result
 
     // creating a command that extracts the .jar file contents(java -jar doesnt extract files without jar xf)
     println!("Extracting the .jar file contents");
-    let output = Command::new("jar")
+    Command::new("jar")
         .current_dir(&download_folder)
         .arg("xf")
         .arg(format!("{}", &out_path.display()))
@@ -34,7 +33,7 @@ pub fn download_required_files(url: &String, download_folder: &String) -> Result
         .expect("Failed to extract the contents of .jar file!");
 
     if url == "https://maven.minecraftforge.net/net/minecraftforge/forge/1.19.4-45.0.49/forge-1.19.4-45.0.49-installer.jar"{
-        let output = Command::new("java")
+        Command::new("java")
             .arg("-jar")
             .arg("forge-1.19.4-installer.jar")
             .arg("-installServer")
@@ -43,7 +42,7 @@ pub fn download_required_files(url: &String, download_folder: &String) -> Result
     }
     // creating a command that finishes the server setup
     println!("Finishing the server download");
-    eula_agree(download_folder.to_string(), file_name.to_string());
+    eula_agree(download_folder.to_string(), file_name.to_string())?;
 
     Ok(())
 }

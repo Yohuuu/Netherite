@@ -1,8 +1,7 @@
-use std::{io::{self, Write}, fs::{self, File}, process::Command};
+use std::{io::{self}, fs::{self}};
 use crate::download_required_files::download_required_files;
 
 pub fn start_setup(username: String){
-    let core_choice = String::new();
     let mut url = String::new();
     let mut folder_name_choice = String::new();
         // loop in case the user enters something that is not an integer or not listed in available core choices
@@ -54,15 +53,20 @@ pub fn start_setup(username: String){
             .read_line(&mut folder_name_choice)
             .expect("Failed to get the name for the folder!");
     
-        let mut trimmed_folder_name_choice = folder_name_choice.trim();
+        let trimmed_folder_name_choice = folder_name_choice.trim();
         // makes a directory with user's Windows username, and a folder name that they've chosen
         let mut path = format!("C:\\Users\\{}\\Desktop\\{}", username, trimmed_folder_name_choice);
     
         match fs::create_dir(&path){
             Ok(_) => {
                 println!("Folder created!");
-                download_required_files(&url, &path);
-                break;
+                match download_required_files(&url, &path){
+                    Ok(_) => break,
+                    Err(e) => {
+                        println!("An error occured in moving to the next step of server setup: {}", e);
+                        continue
+                    }
+                }
             }
             Err(e) => {
                 println!("An error occured when creating the folder! {}", e);
